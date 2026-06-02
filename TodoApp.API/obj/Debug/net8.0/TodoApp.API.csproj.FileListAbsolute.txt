@@ -138,3 +138,12 @@ C:\tests\Todo\TodoApp.API\obj\Debug\net8.0\refint\TodoApp.API.dll
 C:\tests\Todo\TodoApp.API\obj\Debug\net8.0\TodoApp.API.pdb
 C:\tests\Todo\TodoApp.API\obj\Debug\net8.0\TodoApp.API.genruntimeconfig.cache
 C:\tests\Todo\TodoApp.API\obj\Debug\net8.0\ref\TodoApp.API.dll
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Microsoft.Extensions.Caching.Memory.dll
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.dll
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Npgsql.dll
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+C:\tests\Todo\TodoApp.API\obj\Debug\net8.0\TodoApp.API.sourcelink.json
