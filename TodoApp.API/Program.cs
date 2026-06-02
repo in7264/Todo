@@ -5,20 +5,7 @@ using TodoApp.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var rawConn = builder.Configuration.GetConnectionString("DefaultConnection")!;
-
-string connString;
-if (rawConn.StartsWith("postgresql://") || rawConn.StartsWith("postgres://"))
-{
-    var uri = new Uri(rawConn);
-    var userInfo = uri.UserInfo.Split(':');
-    var port = uri.Port > 0 ? uri.Port : 5432;
-    connString = $"Host={uri.Host};Port={port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
-}
-else
-{
-    connString = rawConn;
-}
+var connString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connString));
