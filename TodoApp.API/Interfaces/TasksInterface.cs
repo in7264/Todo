@@ -4,9 +4,9 @@ namespace TodoApp.API.Interfaces;
 
 public interface TasksInterface
 {
-  Task<List<TaskItem>> GetAllA();
-  Task<TaskItem?> GetByIdA(int id);
-  Task<TaskItem> CreateA(TaskItem task);
-  Task<TaskItem?> UpdateA(int id, TaskItem task);
-  Task<bool> DeleteA(int id);
+    Task<PagedResult<TaskItem>> GetAllA(string userId, int page, int pageSize, string? search, int? categoryId);
+    Task<TaskItem?> GetByIdA(int id, string userId);
+    Task<TaskItem> CreateA(TaskItem task);
+    Task<TaskItem?> UpdateA(int id, TaskItem task, string userId);
+    Task<bool> DeleteA(int id, string userId);
 }

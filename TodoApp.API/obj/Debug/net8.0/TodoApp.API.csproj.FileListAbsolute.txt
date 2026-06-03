@@ -147,3 +147,9 @@ C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
 C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Npgsql.dll
 C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
 C:\tests\Todo\TodoApp.API\obj\Debug\net8.0\TodoApp.API.sourcelink.json
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.Internal.dll
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Microsoft.Extensions.Identity.Core.dll
+C:\tests\Todo\TodoApp.API\bin\Debug\net8.0\Microsoft.Extensions.Identity.Stores.dll
