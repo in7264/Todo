@@ -40,15 +40,22 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] TaskItem task)
+    public async Task<IActionResult> Create([FromBody] TaskCreateDto taskDto)
     {
-        task.UserId = UserId;
+        var task = new TaskItem
+        {
+            Title = taskDto.Title,
+            Description = taskDto.Description,
+            IsComplete = taskDto.IsComplete,
+            CategoryId = taskDto.CategoryId,
+            UserId = UserId
+        };
         var created = await _taskService.CreateA(task);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] TaskItem task)
+    public async Task<IActionResult> Update(int id, [FromBody] TaskCreateDto task)
     {
         var updated = await _taskService.UpdateA(id, task, UserId);
         if (updated == null) return NotFound();

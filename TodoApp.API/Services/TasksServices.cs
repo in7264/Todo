@@ -17,7 +17,7 @@ public class TaskService : TasksInterface
     public async Task<PagedResult<TaskItem>> GetAllA(string userId, int page, int pageSize, string? search, int? categoryId)
     {
         var query = _context.Tasks
-            .Include(t => t.Category)
+            .AsNoTracking()
             .Where(t => t.UserId == userId);
 
         if (!string.IsNullOrEmpty(search))
@@ -31,6 +31,23 @@ public class TaskService : TasksInterface
             .OrderByDescending(t => t.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
+            .Select(t => new TaskItem
+            {
+                Id = t.Id,
+                Title = t.Title,
+                Description = t.Description,
+                IsComplete = t.IsComplete,
+                CreatedAt = t.CreatedAt,
+                UserId = t.UserId,
+                CategoryId = t.CategoryId,
+                Category = t.Category == null ? null : new Category
+                {
+                    Id = t.Category.Id,
+                    Name = t.Category.Name,
+                    Color = t.Category.Color,
+                    UserId = t.Category.UserId
+                }
+            })
             .ToListAsync();
 
         return new PagedResult<TaskItem>
@@ -43,7 +60,7 @@ public class TaskService : TasksInterface
     }
 
     public async Task<TaskItem?> GetByIdA(int id, string userId) =>
-        await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+        await _context.Tasks.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
 
     public async Task<TaskItem> CreateA(TaskItem task)
     {
@@ -52,7 +69,7 @@ public class TaskService : TasksInterface
         return task;
     }
 
-    public async Task<TaskItem?> UpdateA(int id, TaskItem updatedTask, string userId)
+    public async Task<TaskItem?> UpdateA(int id, TaskCreateDto updatedTask, string userId)
     {
         var task = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
         if (task == null) return null;

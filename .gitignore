@@ -1,1 +1,59 @@
-TodoApp.API/appsettings.Development.json
+# Build output
+**/bin/
+**/obj/
+**/Debug/
+**/Release/
+publish/
+artifacts/
+tmpbuild/
+verify-build/
+
+# .NET generated files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# Local app configuration and secrets
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.*.local.json
+**/secrets.json
+.env
+.env.*
+!.env.example
+
+# Node / Angular
+**/node_modules/
+**/dist/
+**/.angular/cache/
+**/.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDEs and editors
+.vs/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp

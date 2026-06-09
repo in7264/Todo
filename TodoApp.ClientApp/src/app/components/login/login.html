@@ -1,0 +1,76 @@
+<div class="mx-auto mt-10 w-full max-w-md rounded-3xl bg-white px-6 py-8 shadow-xl ring-1 ring-slate-200">
+  <h4 class="mb-6 text-2xl font-semibold text-slate-900">{{ mode === 'login' ? 'Login' : 'Register' }}</h4>
+
+  <div *ngIf="info" class="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-emerald-800 ring-1 ring-emerald-200">
+    {{ info }}
+  </div>
+  <div *ngIf="error" class="mb-4 rounded-xl bg-red-50 px-4 py-3 text-red-800 ring-1 ring-red-200">
+    {{ error }}
+  </div>
+  <div *ngIf="errorMessages.length" class="mb-4 rounded-xl bg-red-50 px-4 py-3 text-red-800 ring-1 ring-red-200">
+    <ul class="list-disc space-y-1 pl-5">
+      <li *ngFor="let message of errorMessages">{{ message }}</li>
+    </ul>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+    <div>
+      <label class="mb-2 block text-sm font-medium text-slate-700">Email</label>
+      <input 
+        formControlName="email"
+        class="w-full rounded-xl border px-4 py-3 text-slate-900 outline-none transition"
+        [class.border-red-500]="form.get('email')?.invalid && (form.get('email')?.touched || showValidationErrors)"
+        [class.border-slate-200]="form.get('email')?.valid || (!form.get('email')?.touched && !showValidationErrors)"
+        [class.bg-red-50]="form.get('email')?.invalid && (form.get('email')?.touched || showValidationErrors)"
+        [class.bg-slate-50]="form.get('email')?.valid || (!form.get('email')?.touched && !showValidationErrors)"
+        [class.focus:border-red-400]="form.get('email')?.invalid && (form.get('email')?.touched || showValidationErrors)"
+        [class.focus:border-slate-400]="form.get('email')?.valid || (!form.get('email')?.touched && !showValidationErrors)"
+        [class.focus:ring-red-200]="form.get('email')?.invalid && (form.get('email')?.touched || showValidationErrors)"
+        [class.focus:ring-slate-200]="form.get('email')?.valid || (!form.get('email')?.touched && !showValidationErrors)"
+        type="email" 
+      />
+      <div *ngIf="form.get('email')?.invalid && (form.get('email')?.touched || showValidationErrors)" class="mt-2 text-sm text-red-600">
+        <p *ngIf="form.get('email')?.errors?.['required']">Email is required</p>
+        <p *ngIf="form.get('email')?.errors?.['email']">Please enter a valid email</p>
+      </div>
+    </div>
+
+    <div>
+      <label class="mb-2 block text-sm font-medium text-slate-700">Password</label>
+      <input 
+        formControlName="password"
+        class="w-full rounded-xl border px-4 py-3 text-slate-900 outline-none transition"
+        [class.border-red-500]="form.get('password')?.invalid && (form.get('password')?.touched || showValidationErrors)"
+        [class.border-slate-200]="form.get('password')?.valid || (!form.get('password')?.touched && !showValidationErrors)"
+        [class.bg-red-50]="form.get('password')?.invalid && (form.get('password')?.touched || showValidationErrors)"
+        [class.bg-slate-50]="form.get('password')?.valid || (!form.get('password')?.touched && !showValidationErrors)"
+        [class.focus:border-red-400]="form.get('password')?.invalid && (form.get('password')?.touched || showValidationErrors)"
+        [class.focus:border-slate-400]="form.get('password')?.valid || (!form.get('password')?.touched && !showValidationErrors)"
+        [class.focus:ring-red-200]="form.get('password')?.invalid && (form.get('password')?.touched || showValidationErrors)"
+        [class.focus:ring-slate-200]="form.get('password')?.valid || (!form.get('password')?.touched && !showValidationErrors)"
+        type="password" 
+      />
+      <div *ngIf="form.get('password')?.invalid && (form.get('password')?.touched || showValidationErrors)" class="mt-2 text-sm text-red-600">
+        <p *ngIf="form.get('password')?.errors?.['required']">Password is required</p>
+        <p *ngIf="form.get('password')?.errors?.['minlength']">Password must be at least 6 characters</p>
+        <p *ngIf="form.get('password')?.errors?.['uppercase']">Password must have at least one uppercase ('A'-'Z')</p>
+        <p *ngIf="form.get('password')?.errors?.['lowercase']">Password must have at least one lowercase ('a'-'z')</p>
+        <p *ngIf="form.get('password')?.errors?.['digit']">Password must have at least one digit ('0'-'9')</p>
+        <p *ngIf="form.get('password')?.errors?.['specialChar']">Passwords must have at least one non alphanumeric character</p>
+      </div>
+    </div>
+
+    <button 
+      class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700" 
+      type="submit"
+    >
+      {{ mode === 'login' ? 'Login' : 'Register' }}
+    </button>
+  </form>
+
+  <div class="mt-4 text-center text-sm text-slate-500">
+    <button class="font-medium text-slate-900 hover:text-slate-700" type="button" (click)="toggleMode()">
+      {{ mode === 'login' ? 'Create a new account' : 'Back to login' }}
+    </button>
+  </div>
+</div>

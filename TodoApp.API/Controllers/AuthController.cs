@@ -27,7 +27,9 @@ public class AuthController : ControllerBase
         var user = new AppUser { UserName = dto.Email, Email = dto.Email };
         var result = await _userManager.CreateAsync(user, dto.Password);
         if (!result.Succeeded) return BadRequest(result.Errors);
-        return Ok("Registered successfully");
+
+        var token = GenerateToken(user);
+        return Ok(new { token });
     }
 
     [HttpPost("login")]

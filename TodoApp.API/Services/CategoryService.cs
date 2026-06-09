@@ -14,8 +14,19 @@ public class CategoryService : ICategoryService
         _context = context;
     }
 
-    public async Task<List<Category>> GetAllAsync(string userId) =>
-        await _context.Categories.Where(c => c.UserId == userId).ToListAsync();
+    public async Task<List<CategoryDto>> GetAllAsync(string userId) =>
+        await _context.Categories
+            .AsNoTracking()
+            .Where(c => c.UserId == userId)
+            .OrderBy(c => c.Name)
+            .Select(c => new CategoryDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Color = c.Color,
+                TaskCount = _context.Tasks.Count(t => t.UserId == userId && t.CategoryId == c.Id)
+            })
+            .ToListAsync();
 
     public async Task<Category> CreateAsync(Category category)
     {
@@ -28,6 +39,11 @@ public class CategoryService : ICategoryService
     {
         var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
         if (category == null) return false;
+
+        await _context.Tasks
+            .Where(t => t.UserId == userId && t.CategoryId == id)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(t => t.CategoryId, (int?)null));
+
         _context.Categories.Remove(category);
         await _context.SaveChangesAsync();
         return true;
