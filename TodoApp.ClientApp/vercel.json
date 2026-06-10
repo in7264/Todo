@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/TodoApp.ClientApp",
+  "outputDirectory": "dist/TodoApp.ClientApp/browser",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
