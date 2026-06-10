@@ -49,7 +49,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngular", policy =>
         policy.WithOrigins(
                 "http://localhost:4200",
-                "https://todo-cbjt8y5w3-in7264s-projects.vercel.app")
+                "https://todo-pi-black.vercel.app")
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
