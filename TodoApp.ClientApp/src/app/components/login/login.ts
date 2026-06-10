@@ -103,7 +103,9 @@ export class LoginComponent implements OnInit {
         const statusText = err?.statusText;
         const status = err?.status;
 
-        if (Array.isArray(response)) {
+        if (status === 0) {
+          this.error = 'API is unavailable. Check that the backend is running, the API URL is correct, and CORS allows this frontend.';
+        } else if (Array.isArray(response)) {
           this.errorMessages = response.map((item: any) => item?.description || item?.code || JSON.stringify(item));
         } else if (response?.errors) {
           const errors = response.errors;
@@ -116,7 +118,7 @@ export class LoginComponent implements OnInit {
           this.errorMessages = [response.Message];
         } else if (typeof response === 'string' && response.trim().length) {
           this.error = response;
-        } else if (response && typeof response === 'object') {
+        } else if (response && typeof response === 'object' && !(response instanceof ProgressEvent)) {
           this.errorMessages = [JSON.stringify(response)];
         } else if (statusText || status) {
           this.error = `Request failed${status ? ` (${status})` : ''}${statusText ? `: ${statusText}` : ''}`;

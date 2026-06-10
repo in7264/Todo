@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TodoApp.API.DataAccess;
+using TodoApp.API.DTOs;
 using TodoApp.API.Interfaces;
 using TodoApp.API.Models;
 
@@ -28,11 +29,32 @@ public class CategoryService : ICategoryService
             })
             .ToListAsync();
 
-    public async Task<Category> CreateAsync(Category category)
+    public async Task<CategoryDto?> GetByIdAsync(int id, string userId) =>
+        await _context.Categories
+            .AsNoTracking()
+            .Where(c => c.Id == id && c.UserId == userId)
+            .Select(c => new CategoryDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Color = c.Color,
+                TaskCount = _context.Tasks.Count(t => t.UserId == userId && t.CategoryId == c.Id)
+            })
+            .FirstOrDefaultAsync();
+
+    public async Task<CategoryDto> CreateAsync(CategoryCreateDto categoryDto, string userId)
     {
+        var category = new Category
+        {
+            Name = categoryDto.Name,
+            Color = categoryDto.Color,
+            UserId = userId
+        };
+
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
-        return category;
+
+        return (await GetByIdAsync(category.Id, userId))!;
     }
 
     public async Task<bool> DeleteAsync(int id, string userId)

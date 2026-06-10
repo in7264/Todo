@@ -68,12 +68,6 @@ export class TasksComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  load() {
-    this.taskService.getAll(this.page, this.pageSize, this.search, this.selectedCategory).subscribe((result) => {
-      this.setTasks(result);
-    });
-  }
-
   applyFilters() {
     this.page = 1;
     this.refreshView();
@@ -229,14 +223,14 @@ export class TasksComponent implements OnInit, OnDestroy {
   prevPage() {
     if (this.page > 1) {
       this.page--;
-      this.load();
+      this.refreshView();
     }
   }
 
   nextPage() {
     if (this.page < this.totalPages) {
       this.page++;
-      this.load();
+      this.refreshView();
     }
   }
 }

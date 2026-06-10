@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TodoApp.API.DTOs;
 using TodoApp.API.Interfaces;
-using TodoApp.API.Models;
 
 namespace TodoApp.API.Controllers;
 
@@ -27,20 +27,22 @@ public class CategoriesController : ControllerBase
         return Ok(categories);
     }
 
+    [HttpGet("{id:int:min(1)}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var category = await _categoryService.GetByIdAsync(id, UserId);
+        if (category == null) return NotFound();
+        return Ok(category);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CategoryCreateDto categoryDto)
     {
-        var category = new Category
-        {
-            Name = categoryDto.Name,
-            UserId = UserId
-        };
-
-        var created = await _categoryService.CreateAsync(category);
-        return Ok(created);
+        var created = await _categoryService.CreateAsync(categoryDto, UserId);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int:min(1)}")]
     public async Task<IActionResult> Delete(int id)
     {
         var success = await _categoryService.DeleteAsync(id, UserId);

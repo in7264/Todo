@@ -1,4 +1,4 @@
-namespace TodoApp.API.Models;
+namespace TodoApp.API.DTOs;
 
 public class CategoryDto
 {

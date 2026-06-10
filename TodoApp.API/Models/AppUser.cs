@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
-using TodoApp.API.Models;
+
+namespace TodoApp.API.Models;
 
 public class AppUser : IdentityUser
 {
