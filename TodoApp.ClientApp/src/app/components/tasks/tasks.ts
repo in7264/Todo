@@ -1,5 +1,4 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { NgFor, NgIf, NgClass } from '@angular/common';
+import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TaskService, TaskItem } from '../../services/task.service';
@@ -13,32 +12,31 @@ type Tab = 'new' | 'categories' | 'all';
 @Component({
   selector: 'app-tasks',
   standalone: true,
-  imports: [FormsModule, NgFor, NgIf, NgClass],
+  imports: [FormsModule],
   templateUrl: './tasks.html',
   styleUrls: ['./tasks.css']
 })
 export class TasksComponent implements OnInit, OnDestroy {
-  tasks: TaskItem[] = [];
-  categories: Category[] = [];
-  page = 1;
+  tasks = signal<TaskItem[]>([]);
+  categories = signal<Category[]>([]);
+  page = signal(1);
   pageSize = 10;
-  total = 0;
+  total = signal(0);
   search = '';
   selectedCategory: number | null = null;
   newTask: TaskItem = { title: '', description: '', isComplete: false, categoryId: null };
   editTaskId: number | null = null;
   categoryName = '';
-  error = '';
-  activeTab: Tab = 'all';
+  error = signal('');
+  activeTab = signal<Tab>('all');
+  totalPages = computed(() => Math.ceil(this.total() / this.pageSize));
   private destroy$ = new Subject<void>();
 
   constructor(
     private taskService: TaskService,
     private categoryService: CategoryService,
     private auth: AuthService,
-    private router: Router,
-    private zone: NgZone,
-    private cd: ChangeDetectorRef
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -56,9 +54,9 @@ export class TasksComponent implements OnInit, OnDestroy {
   }
 
   setTab(tab: Tab) {
-    this.activeTab = tab;
+    this.activeTab.set(tab);
     if (tab === 'all') {
-      this.page = 1;
+      this.page.set(1);
       this.refreshView();
     }
   }
@@ -69,7 +67,7 @@ export class TasksComponent implements OnInit, OnDestroy {
   }
 
   applyFilters() {
-    this.page = 1;
+    this.page.set(1);
     this.refreshView();
   }
 
@@ -79,46 +77,34 @@ export class TasksComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
-  loadCategories() {
-    this.categoryService.getAll().subscribe((items) => this.setCategories(items));
-  }
-
   private refreshView(resetPage = false) {
     if (resetPage) {
-      this.page = 1;
+      this.page.set(1);
     }
 
     forkJoin({
-      tasks: this.taskService.getAll(this.page, this.pageSize, this.search, this.selectedCategory),
+      tasks: this.taskService.getAll(this.page(), this.pageSize, this.search, this.selectedCategory),
       categories: this.categoryService.getAll()
-    }).subscribe(({ tasks, categories }) => {
-      this.zone.run(() => {
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ tasks, categories }) => {
         this.setTasks(tasks);
-        this.categories = [...categories];
-        this.cd.detectChanges();
+        this.categories.set([...categories]);
 
-        if (this.total > 0 && this.page > this.totalPages) {
-          this.page = this.totalPages;
+        if (this.total() > 0 && this.page() > this.totalPages()) {
+          this.page.set(this.totalPages());
           this.refreshView();
         }
       });
-    });
   }
 
   private setTasks(result: { items: TaskItem[]; totalCount: number }) {
-    this.tasks = result.items;
-    this.total = result.totalCount;
-  }
-
-  private setCategories(items: Category[]) {
-    this.zone.run(() => {
-      this.categories = [...items];
-      this.cd.detectChanges();
-    });
+    this.tasks.set(result.items);
+    this.total.set(result.totalCount);
   }
 
   saveTask() {
-    this.error = '';
+    this.error.set('');
     const taskPayload = this.toTaskPayload(this.newTask);
 
     if (this.editTaskId != null) {
@@ -126,10 +112,10 @@ export class TasksComponent implements OnInit, OnDestroy {
         next: () => { 
           this.editTaskId = null; 
           this.newTask = { title: '', description: '', isComplete: false, categoryId: null }; 
-          this.activeTab = 'all';
+          this.activeTab.set('all');
           this.refreshView();
         },
-        error: () => this.error = 'Failed to update task.'
+        error: () => this.error.set('Failed to update task.')
       });
       return;
     }
@@ -137,10 +123,10 @@ export class TasksComponent implements OnInit, OnDestroy {
     this.taskService.create(taskPayload).subscribe({
       next: () => { 
         this.newTask = { title: '', description: '', isComplete: false, categoryId: null }; 
-        this.activeTab = 'all';
+        this.activeTab.set('all');
         this.refreshView(true);
       },
-      error: () => this.error = 'Failed to create task.'
+      error: () => this.error.set('Failed to create task.')
     });
   }
 
@@ -156,7 +142,7 @@ export class TasksComponent implements OnInit, OnDestroy {
   editTask(task: TaskItem) {
     this.editTaskId = task.id ?? null;
     this.newTask = { ...task };
-    this.activeTab = 'new';
+    this.activeTab.set('new');
   }
 
   cancelEdit() {
@@ -181,7 +167,7 @@ export class TasksComponent implements OnInit, OnDestroy {
       next: () => {
         if (this.selectedCategory === category.id) {
           this.selectedCategory = null;
-          this.page = 1;
+          this.page.set(1);
         }
 
         if (this.newTask.categoryId === category.id) {
@@ -190,7 +176,7 @@ export class TasksComponent implements OnInit, OnDestroy {
 
         this.refreshView(true);
       },
-      error: () => this.error = 'Failed to delete category.'
+      error: () => this.error.set('Failed to delete category.')
     });
   }
 
@@ -199,7 +185,7 @@ export class TasksComponent implements OnInit, OnDestroy {
   }
 
   addCategory() {
-    this.error = '';
+    this.error.set('');
     if (!this.categoryName.trim()) {
       return;
     }
@@ -209,27 +195,28 @@ export class TasksComponent implements OnInit, OnDestroy {
         this.categoryName = '';
         this.refreshView();
       },
-      error: () => {
-        this.error = 'Failed to create category. Please log in again or refresh the page.';
-        this.cd.detectChanges();
-      }
+      error: () => this.error.set('Failed to create category. Please log in again or refresh the page.')
     });
   }
 
-  get totalPages() {
-    return Math.ceil(this.total / this.pageSize);
+  tabClass(tab: Tab) {
+    const base = 'rounded-full px-4 py-2 text-sm font-semibold transition';
+    const active = 'bg-slate-900 text-white';
+    const inactive = 'bg-slate-100 text-slate-700 hover:bg-slate-200';
+
+    return `${base} ${this.activeTab() === tab ? active : inactive}`;
   }
 
   prevPage() {
-    if (this.page > 1) {
-      this.page--;
+    if (this.page() > 1) {
+      this.page.update(page => page - 1);
       this.refreshView();
     }
   }
 
   nextPage() {
-    if (this.page < this.totalPages) {
-      this.page++;
+    if (this.page() < this.totalPages()) {
+      this.page.update(page => page + 1);
       this.refreshView();
     }
   }

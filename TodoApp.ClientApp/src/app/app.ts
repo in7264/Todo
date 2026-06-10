@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { Router, RouterOutlet, RouterLink } from '@angular/router';
-import { AsyncPipe, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { ToastComponent } from './shared/toast.component';
 import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, ToastComponent, NgIf, AsyncPipe],
+  imports: [RouterOutlet, RouterLink, ToastComponent, AsyncPipe],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

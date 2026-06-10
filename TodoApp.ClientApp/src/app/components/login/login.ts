@@ -1,6 +1,5 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
-import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../shared/toast.service';
@@ -8,16 +7,16 @@ import { ToastService } from '../../shared/toast.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf, NgFor],
+  imports: [ReactiveFormsModule],
   templateUrl: './login.html'
 })
 export class LoginComponent implements OnInit {
   form!: FormGroup;
-  info = '';
-  error = '';
-  errorMessages: string[] = [];
+  info = signal('');
+  error = signal('');
+  errorMessages = signal<string[]>([]);
   mode: 'login' | 'register' = 'login';
-  showValidationErrors = false;
+  showValidationErrors = signal(false);
 
   // Custom validators
   private passwordValidators(control: AbstractControl): ValidationErrors | null {
@@ -46,8 +45,7 @@ export class LoginComponent implements OnInit {
     private auth: AuthService,
     private router: Router,
     private fb: FormBuilder,
-    private toast: ToastService,
-    private cd: ChangeDetectorRef
+    private toast: ToastService
   ) {}
 
   ngOnInit() {
@@ -69,9 +67,9 @@ export class LoginComponent implements OnInit {
   }
 
   submit() {
-    this.info = '';
-    this.error = '';
-    this.errorMessages = [];
+    this.info.set('');
+    this.error.set('');
+    this.errorMessages.set([]);
 
     // Mark all fields as touched to show validation errors immediately
     Object.keys(this.form.controls).forEach(key => {
@@ -80,7 +78,7 @@ export class LoginComponent implements OnInit {
 
     // If form is invalid, don't submit to server
     if (this.form.invalid) {
-      this.showValidationErrors = true;
+      this.showValidationErrors.set(true);
       return;
     }
 
@@ -104,39 +102,32 @@ export class LoginComponent implements OnInit {
         const status = err?.status;
 
         if (status === 0) {
-          this.error = 'API is unavailable. Check that the backend is running, the API URL is correct, and CORS allows this frontend.';
+          this.error.set('API is unavailable. Check that the backend is running, the API URL is correct, and CORS allows this frontend.');
         } else if (Array.isArray(response)) {
-          this.errorMessages = response.map((item: any) => item?.description || item?.code || JSON.stringify(item));
+          this.errorMessages.set(response.map((item: any) => item?.description || item?.code || JSON.stringify(item)));
         } else if (response?.errors) {
           const errors = response.errors;
-          this.errorMessages = Object.values(errors)
+          this.errorMessages.set(Object.values(errors)
             .flatMap((value: any) => Array.isArray(value) ? value : [value])
-            .map((item: any) => typeof item === 'string' ? item : JSON.stringify(item));
+            .map((item: any) => typeof item === 'string' ? item : JSON.stringify(item)));
         } else if (response?.description) {
-          this.errorMessages = [response.description];
+          this.errorMessages.set([response.description]);
         } else if (response?.Message) {
-          this.errorMessages = [response.Message];
+          this.errorMessages.set([response.Message]);
         } else if (typeof response === 'string' && response.trim().length) {
-          this.error = response;
+          this.error.set(response);
         } else if (response && typeof response === 'object' && !(response instanceof ProgressEvent)) {
-          this.errorMessages = [JSON.stringify(response)];
+          this.errorMessages.set([JSON.stringify(response)]);
         } else if (statusText || status) {
-          this.error = `Request failed${status ? ` (${status})` : ''}${statusText ? `: ${statusText}` : ''}`;
+          this.error.set(`Request failed${status ? ` (${status})` : ''}${statusText ? `: ${statusText}` : ''}`);
         } else {
-          this.error = 'Authentication failed. Please check the highlighted errors.';
+          this.error.set('Authentication failed. Please check the highlighted errors.');
         }
 
-        if (!this.error && this.errorMessages.length) {
-          this.error = 'Registration failed. See details below.';
+        if (!this.error() && this.errorMessages().length) {
+          this.error.set('Registration failed. See details below.');
         }
 
-        // Ensure Angular updates the view immediately. Sometimes async errors
-        // are delivered outside the zone or don't trigger CD; force a check.
-        try {
-          this.cd.detectChanges();
-        } catch (e) {
-          // noop
-        }
       }
     });
   }
@@ -144,9 +135,9 @@ export class LoginComponent implements OnInit {
   toggleMode() {
     this.mode = this.mode === 'login' ? 'register' : 'login';
     this.initializeForm();
-    this.info = '';
-    this.error = '';
-    this.errorMessages = [];
-    this.showValidationErrors = false;
+    this.info.set('');
+    this.error.set('');
+    this.errorMessages.set([]);
+    this.showValidationErrors.set(false);
   }
 }
